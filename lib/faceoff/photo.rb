@@ -12,7 +12,7 @@ class Faceoff
 
       index = start % 15
 
-      param = "id=#{faceoff.profile_id}&v=photos&so=#{start}"
+      param = "id=#{faceoff.profile_id}&v=photos&so=#{start}&ref=sgm"
 
       page = agent.get "/profile.php?#{param}"
 

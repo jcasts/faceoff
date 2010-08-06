@@ -32,7 +32,7 @@ class Faceoff
       agent = faceoff.agent
 
       path = if user_id =~ /^\d+$/
-               "/profile.php?id=#{user_id}&v=info"
+               "/profile.php?id=#{user_id}&v=info&ref=sgm"
              else
                "/#{user_id}?v=info"
              end

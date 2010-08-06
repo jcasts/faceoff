@@ -118,8 +118,7 @@ class Faceoff
     return unless form
 
     form.email = @email
-    form.pass_placeholder = @password
-    form.pass = @password
+    form.pass  = @password
 
     page = form.submit
     logged_in?

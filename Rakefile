@@ -10,6 +10,7 @@ Hoe.spec 'faceoff' do
 
   self.extra_deps << ['highline',  '>= 1.5.1']
   self.extra_deps << ['mechanize', '>= 1.0.0']
+  self.extra_deps << ['json',      '>= 1.2.0']
 end
 
 # vim: syntax=ruby
