@@ -5,4 +5,10 @@ README.txt
 Rakefile
 bin/faceoff
 lib/faceoff.rb
+lib/faceoff/album.rb
+lib/faceoff/note.rb
+lib/faceoff/pagelet.rb
+lib/faceoff/photo.rb
+lib/faceoff/user.rb
+lib/faceoff/video.rb
 test/test_faceoff.rb
