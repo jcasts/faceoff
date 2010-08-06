@@ -1,0 +1,4 @@
+.autotest
+.*.swp
+.*.swo
+tmp/
