@@ -1,14 +1,10 @@
 = faceoff
 
-* FIX (url)
+* http://github.com/yaksnrainbows/faceoff
 
 == DESCRIPTION:
 
-FIX (describe your package)
-
-== FEATURES/PROBLEMS:
-
-* FIX (list of features or problems)
+Backup your facebook account (albums, photos, notes, users, video)
 
 == SYNOPSIS:
 
@@ -16,11 +12,13 @@ FIX (describe your package)
 
 == REQUIREMENTS:
 
-* FIX (list of requirements)
+* mechanize
+* highline
+* json
 
 == INSTALL:
 
-* FIX (sudo gem install, anything else)
+* sudo gem install faceoff
 
 == LICENSE:
 
