@@ -4,9 +4,35 @@ class Faceoff
 
 
     ##
-    # Returns an array of albums.
+    # Returns an array of albums for the current user. Pass the :user_id option
+    # to override the logged in user.
 
     def self.retrieve_all faceoff, options={}
+      albums = []
+      limit  = options[:limit]
+      start  = options[:start] || 0
+
+      agent   = faceoff.agent
+      user_id = options[:user_id] || faceoff.profile_id
+
+      page = agent.get "/photos.php?id=#{user_id}"
+
+      xpath = "table[@class='uiGrid fbPhotosGrid']/tbody/"+
+              "/div[@class='pls photoDetails']/a"
+
+      page.search(xpath).each do |node|
+        album_id   = $1 if node['href'] =~ /aid=(\d+)/
+        album_name = node.text
+        albums << new(faceoff, album_id, album_name)
+      end
+
+      limit ||= albums.length
+
+      albums[start, limit]
+    end
+
+
+    def self.retrieve_all_old faceoff, options={}
       albums = []
       limit  = options[:limit]
       start  = options[:start] || 0

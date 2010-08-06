@@ -18,6 +18,7 @@ class Faceoff
         "__a=1&filter=afp&type=afp&value&is_pagelet=false&offset=0"
 
       user_ids = JSON.parse $1 if page.body =~ %r{"members":(\[[^\]]+\])}
+      limit ||= user_ids.length
 
       user_ids[start, limit].map{|uid| retrieve faceoff, uid}
     end
@@ -51,7 +52,7 @@ class Faceoff
 
       details = pagelets[:tab_content]
 
-      user.emails = fattr details, 'Email'
+      user.emails = fattr(details, 'Email')
 
       user.phones['mobile'] =
         fattr(details, 'Mobile Number').first.gsub(/[^\da-z]/i, '') rescue nil
@@ -88,7 +89,7 @@ class Faceoff
       return resp if nodes.empty?
 
       nodes.first.next.children.each do |node|
-        text = node.text.strip
+        text = node.name == "img" ? node['src'] : node.text.strip
         next if text.empty?
         resp << text
       end
