@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'mechanize'
+require 'optparse'
 require 'highline'
 require 'json'
 require 'time'
@@ -14,24 +15,14 @@ class Faceoff
   require 'faceoff/user'
 
 
+  # Version of the gem.
   VERSION = '1.0.0'
 
+  # Command line actions available.
+  ACTIONS = %w{albums friends notes photos_of_me profile_pictures videos_of_me}
 
-  ##
-  # Run from the command line.
-
-  def self.run argv
-    output_dir = argv[0]
-    raise "Invalid target directory" unless File.directory? output_dir
-
-    $stdin.sync
-    input = HighLine.new $stdin
-
-    email    = input.ask "Facebook Email: "
-    password = input.ask("Facebook Password: "){|i| i.echo = false}
-
-    faceoff = login email, password
-  end
+  # Default directory to save data to.
+  DEFAULT_DIR = "faceoff-#{Time.now.to_i}"
 
 
   ##
@@ -39,10 +30,113 @@ class Faceoff
 
   def self.login email, password
     inst = new email, password
-    inst.login
-    inst
+    inst if inst.login
   end
 
+
+  ##
+  # Parse ARGVs
+
+  def self.parse_args argv
+    options = {}
+
+    OptionParser.new do |opt|
+      opt.program_name = File.basename $0
+      opt.version = Faceoff::VERSION
+      opt.release = nil
+
+      opt.banner = <<-STR
+Faceoff is a facebook scraper that allows you to download and backup
+your content in a reusable format.
+
+  Usage:
+    #{opt.program_name} -h/--help
+    #{opt.program_name} -v/--version
+    #{opt.program_name} [facebook_email [password]] [options...]
+
+  Examples:
+    #{opt.program_name} example@yahoo.com --all
+    #{opt.program_name} example@yahoo.com --albums '2..3'
+    #{opt.program_name} example@yahoo.com --friends --profilepics 0
+
+  Options:
+      STR
+
+      opt.on('-A', '--all') do
+        ACTIONS.each{|a| options[a] = true }
+      end
+
+      opt.on('-a', '--albums [RANGE]') do |range|
+        options['albums'] = parse_range range
+      end
+
+      opt.on('-d', '--directory PATH') do |path|
+        options['dir'] = path
+      end
+
+      opt.on('-f', '--friends [RANGE]') do |range|
+        options['friends'] = parse_range range
+      end
+
+      opt.on('-n', '--notes [RANGE]') do |range|
+        options['notes'] = parse_range range
+      end
+
+      opt.on('-p', '--photosofme [RANGE]') do |range|
+        options['photos_of_me'] = parse_range range
+      end
+
+      opt.on('-P', '--profilepics [RANGE]') do |range|
+        options['profile_pictures'] = parse_range range
+      end
+
+      opt.on('-V', '--videosofme [RANGE]') do |range|
+        options['videos_of_me'] = parse_range range
+      end
+    end
+
+    opts.parse! argv
+
+    options['email'], options['password'] = argv
+
+    options
+  end
+
+
+  ##
+  # Takes a range or number as a string and returns a range or integer.
+  # Returns true if no range or int value is found.
+
+  def self.parse_range str
+    str = str.strip
+
+    return Range.new($1.to_i, $2.to_i) if str =~ /^(\d+)\.\.(\d+)$/
+    return str.to_i if str == str.to_i.to_s
+
+    true
+  end
+
+
+  ##
+  # Run from the command line.
+
+  def self.run argv
+    options = parse_args argv
+
+    $stdin.sync
+    input = HighLine.new $stdin
+
+    faceoff = nil
+
+    until faceoff do
+      email    = options['email'] || input.ask "Facebook Email: "
+      password = options['password'] ||
+        input.ask("Facebook Password: "){|i| i.echo = false}
+
+      faceoff = login email, password
+      options['password'] = nil unless faceoff
+    end
+  end
 
 
   # Mechanize agent
