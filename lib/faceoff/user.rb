@@ -63,7 +63,17 @@ class Faceoff
 
       user.photo = pagelets[:profile_photo].css("img#profile_pic").first['src']
 
-      user.address = fattr details, "Current Address"
+      user.address = {}
+      user.address[:street] = fattr(details, "Address", :href => /&a2=/).first
+
+      user.address[:city], user.address[:state] =
+        fattr(details, "Address", :href => /&c2=/).first.to_s.split(", ")
+
+      user.address[:state], user.address[:country] =
+        [nil, user.address[:state]] if user.address[:state].to_s.length > 2
+
+      user.address[:zip] = fattr(details, "Address", :href => /&z2=/).first
+
 
       IM_SERVICES.each do |im|
         im_alias = fattr(details, im).first
@@ -81,7 +91,7 @@ class Faceoff
     ##
     # Get a facebook attribute from a given Nokogiri::HTML::Document.
 
-    def self.fattr doc, attrib
+    def self.fattr doc, attrib, options={}
       resp  = []
 
       nodes = doc.search("th[@class='label'][text()='#{attrib}:']")
@@ -91,7 +101,14 @@ class Faceoff
       nodes.first.next.children.each do |node|
         text = node.name == "img" ? node['src'] : node.text.strip
         next if text.empty?
-        resp << text
+
+        if options.empty?
+          resp << text
+        else
+          options.each do |key, matcher|
+            resp << text if node[key] =~ matcher
+          end
+        end
       end
 
       resp
@@ -128,7 +145,69 @@ class Faceoff
       @phones  = {}
       @emails  = []
       @aliases = {}
-      @address = nil
+      @address = {}
     end
+
+
+    ##
+    # Saves the user as a vcard to the provided file path.
+
+    def save! target=".", vcard=nil
+      FileUtils.mkdir_p target
+      raise "Invalid directory #{target}" unless File.directory? target
+
+      vcard = to_vcard vcard
+
+      File.open(File.join(target, "#{@name}.vcf"), "w+") do |f|
+        f.write vcard
+      end
+    end
+
+
+    ##
+    # Returns a Vpip::Vcard object.
+
+    def to_vcard vcard=nil
+      vcard ||= Vpim::Vcard.create
+
+      vcard.make do |maker|
+
+        maker.name{|n| n.fullname = @name }
+
+        maker.add_addr do |addr|
+          addr.region   = address[:state]
+          addr.locality = address[:city]
+          addr.street   = address[:street]
+          addr.country  = address[:country]
+          addr.postalcode = address[:zip]
+        end
+
+        emails.each{|email| maker.add_email email }
+
+        phones.each do |type, number|
+          next unless number
+          maker.add_tel(number){|tel| tel.location = [type] }
+        end
+
+        aliases.each do |name, value|
+          maker.add_field Vpim::DirectoryInfo::Field.create("X-#{name}", value)
+        end
+
+        maker.add_photo do |photo|
+          photo.image = Photo.download @photo
+          photo.type  = File.extname(@photo)[1..-1]
+        end if @photo
+      end
+
+      vcard
+    end
+  end
+end
+
+
+# Hack to fix old ruby version support of Vpim
+class Object
+  def to_str
+    self.to_s
   end
 end

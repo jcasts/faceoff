@@ -1,9 +1,12 @@
 require 'rubygems'
 require 'mechanize'
-require 'optparse'
+require 'vpim/vcard'
 require 'highline'
+
+require 'optparse'
 require 'json'
 require 'time'
+require 'fileutils'
 
 class Faceoff
 
@@ -129,7 +132,7 @@ your content in a reusable format.
     faceoff = nil
 
     until faceoff do
-      email    = options['email'] || input.ask "Facebook Email: "
+      email    = options['email'] || input.ask("Facebook Email: ")
       password = options['password'] ||
         input.ask("Facebook Password: "){|i| i.echo = false}
 

@@ -4,6 +4,20 @@ class Faceoff
 
 
     ##
+    # Download a photo from a url. Pass a block to catch the data.
+
+    def self.download url, &block
+      uri = URI.parse url
+
+      resp = Net::HTTP.start(uri.host) do |http|
+        http.get uri.path
+      end
+
+      resp.body
+    end
+
+
+    ##
     # Retrieve all 'Photos of Me'.
 
     def self.photos_of_me faceoff, options={}
