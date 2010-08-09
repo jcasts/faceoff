@@ -158,7 +158,17 @@ class Faceoff
 
       vcard = to_vcard vcard
 
-      File.open(File.join(target, "#{@name}.vcf"), "w+") do |f|
+      test_filename = filename = File.join(target, "#{@name}.vcf")
+
+      i = 0
+      while File.file?(test_filename)
+        i = i.next
+        test_filename = "#{File.basename(filename, ".vcf")} (#{i}).vcf"
+      end
+
+      filename = test_filename
+
+      File.open(filename, "w+") do |f|
         f.write vcard
       end
     end
