@@ -8,13 +8,32 @@ Backup your facebook account (albums, photos, notes, users, video)
 
 == SYNOPSIS:
 
-  FIX (code sample of usage)
+  require 'faceoff'
+
+  f = Faceoff.login "email@example.com", "password"
+
+  f.photos_of_me{|p| p.save!}
+  # Saves to ./Photos\ of\ me/
+
+  f.albums[0].name
+  #=> "Album title"
+
+  f.albums[0].photos(0..10)
+  #=> [<#Photo...>,<#Photo...>, ...]
+
+  f.albums[0].photos[0].url
+  #=> "http://photo/url.jpg"
+
+  f.notes.first.title
+  #=> "Title of note"
+
 
 == REQUIREMENTS:
 
 * mechanize
 * highline
 * json
+* vpim
 
 == INSTALL:
 
