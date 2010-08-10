@@ -1,3 +1,11 @@
+# Hack to fix old ruby version support of Vpim
+class Array
+  def to_str
+    self.to_s
+  end
+end
+
+
 require 'rubygems'
 require 'mechanize'
 require 'highline'
@@ -45,7 +53,7 @@ class Faceoff
   def self.parse_args argv
     options = {}
 
-    OptionParser.new do |opt|
+    opts = OptionParser.new do |opt|
       opt.program_name = File.basename $0
       opt.version = Faceoff::VERSION
       opt.release = nil
@@ -117,7 +125,7 @@ your content in a reusable format.
   # Returns true if no range or int value is found.
 
   def self.parse_range str
-    str = str.strip
+    str = str.to_s.strip
 
     return Range.new($1.to_i, $2.to_i) if str =~ /^(\d+)\.\.(\d+)$/
     return str.to_i if str == str.to_i.to_s
@@ -145,6 +153,8 @@ your content in a reusable format.
       faceoff = login email, password
       options['password'] = nil unless faceoff
     end
+
+    
   end
 
 

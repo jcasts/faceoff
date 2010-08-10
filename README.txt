@@ -4,9 +4,14 @@
 
 == DESCRIPTION:
 
-Backup your facebook account (albums, photos, notes, users, video)
+A scraper to backup your facebook account (albums, photos, notes, users, video).
+Why a scraper instead of using facebook apps? Logging in as a user gives you
+access to more data and it's harder to block.
+
 
 == SYNOPSIS:
+
+Using the gem lib:
 
   require 'faceoff'
 
@@ -27,6 +32,16 @@ Backup your facebook account (albums, photos, notes, users, video)
   f.notes.first.title
   #=> "Title of note"
 
+
+Using the gem bin:
+
+  faceoff --all -d path/to/dir
+  faceoff --notes --albums '1..4'
+  faceoff email@example.com password -A
+
+For more information see:
+
+  faceoff -h
 
 == REQUIREMENTS:
 

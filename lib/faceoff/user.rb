@@ -214,10 +214,3 @@ class Faceoff
   end
 end
 
-
-# Hack to fix old ruby version support of Vpim
-class Object
-  def to_str
-    self.to_s
-  end
-end
