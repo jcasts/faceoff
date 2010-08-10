@@ -116,7 +116,7 @@ class Faceoff
     # Saves the photo to the provided file path.
 
     def save! target="."
-      filename = File.join(target, "#{@caption || @fid}.#{File.extname(@url)}")
+      filename = File.join(target, "#{@fid}#{File.extname(@url)}")
 
       data = self.class.download(@url)
 

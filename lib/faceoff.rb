@@ -1,7 +1,9 @@
 require 'rubygems'
 require 'mechanize'
-require 'vpim/vcard'
 require 'highline'
+
+Vpim = Module.new # Odd hack that makes the vpim-mechanize conflict disappear.
+require 'vpim/vcard'
 
 require 'optparse'
 require 'json'
