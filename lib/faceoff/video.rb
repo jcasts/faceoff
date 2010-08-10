@@ -63,5 +63,19 @@ class Faceoff
       @url  = url
       @name = name
     end
+
+
+    ##
+    # Saves the video the the provided path.
+
+    def save! target="./Videos of me"
+      filename = File.join(target, "#{@name}#{File.extname(@url)}")
+
+      data = Faceoff.download(@url)
+
+      Faceoff.safe_save(filename) do |file|
+        file.write data
+      end
+    end
   end
 end

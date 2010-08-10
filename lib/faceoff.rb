@@ -67,36 +67,40 @@ your content in a reusable format.
   Options:
       STR
 
-      opt.on('-A', '--all') do
+      opt.on('-A', '--all', 'Retrieve all facebook data') do
         ACTIONS.each{|a| options[a] = true }
       end
 
-      opt.on('-a', '--albums [RANGE]') do |range|
+      opt.on('-a', '--albums [RANGE]', 'Retrieve albums') do |range|
         options['albums'] = parse_range range
       end
 
-      opt.on('-d', '--directory PATH') do |path|
-        options['dir'] = path
-      end
-
-      opt.on('-f', '--friends [RANGE]') do |range|
+      opt.on('-f', '--friends [RANGE]', 'Retrieve contacts') do |range|
         options['friends'] = parse_range range
       end
 
-      opt.on('-n', '--notes [RANGE]') do |range|
+      opt.on('-n', '--notes [RANGE]', 'Retrieve notes') do |range|
         options['notes'] = parse_range range
       end
 
-      opt.on('-p', '--photosofme [RANGE]') do |range|
+      opt.on('-p', '--photosofme [RANGE]', 'Retrieve photos of me') do |range|
         options['photos_of_me'] = parse_range range
       end
 
-      opt.on('-P', '--profilepics [RANGE]') do |range|
+      opt.on('-P', '--profilepics [RANGE]', 'Retrieve profile pics') do |range|
         options['profile_pictures'] = parse_range range
       end
 
-      opt.on('-V', '--videosofme [RANGE]') do |range|
+      opt.on('-V', '--videosofme [RANGE]', 'Retrieve videos of me') do |range|
         options['videos_of_me'] = parse_range range
+      end
+
+      opt.on('-d', '--directory PATH', 'Directory to save to') do |path|
+        options['dir'] = path
+      end
+
+      opt.on('-z', '--gzip [NAME]', 'Zip content when done') do |name|
+        options['gzip'] = name || true
       end
     end
 
