@@ -146,6 +146,11 @@ your content in a reusable format.
   # Safely save a file; rename it if name exists.
 
   def self.safe_save filename, &block
+    dir = File.dirname(filename)
+
+    FileUtils.mkdir_p dir
+    raise "Invalid directory #{dir}" unless File.directory? dir
+
     test_filename = filename
 
     i = 0

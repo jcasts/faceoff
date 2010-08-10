@@ -159,9 +159,6 @@ class Faceoff
     # Saves the user as a vcard to the provided file path.
 
     def save! target=".", vcard=nil
-      FileUtils.mkdir_p target
-      raise "Invalid directory #{target}" unless File.directory? target
-
       vcard = to_vcard vcard
 
       Faceoff.safe_save(File.join(target, "#{@name}.vcf")) do |file|

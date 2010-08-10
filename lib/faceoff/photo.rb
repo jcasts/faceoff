@@ -6,7 +6,7 @@ class Faceoff
     ##
     # Download a photo from a url. Pass a block to catch the data.
 
-    def self.download url, &block
+    def self.download url
       uri = URI.parse url
 
       resp = Net::HTTP.start(uri.host) do |http|
@@ -109,6 +109,20 @@ class Faceoff
       @fid     = id
       @url     = url
       @caption = caption
+    end
+
+
+    ##
+    # Saves the photo to the provided file path.
+
+    def save! target="."
+      filename = File.join(target, "#{@caption || @fid}.#{File.extname(@url)}")
+
+      data = self.class.download(@url)
+
+      Faceoff.safe_save(filename) do |file|
+        file.write data
+      end
     end
   end
 end
