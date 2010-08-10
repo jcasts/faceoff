@@ -158,7 +158,7 @@ class Faceoff
     ##
     # Saves the user as a vcard to the provided file path.
 
-    def save! target=".", vcard=nil
+    def save! target="./Contacts", vcard=nil
       vcard = to_vcard vcard
 
       Faceoff.safe_save(File.join(target, "#{@name}.vcf")) do |file|

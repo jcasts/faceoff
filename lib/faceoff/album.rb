@@ -65,7 +65,7 @@ class Faceoff
     ##
     # Save the album to the provided directory.
 
-    def save! target="."
+    def save! target="./Albums"
       dirname = File.join target, @name
       FileUtils.mkdir_p dirname
 
