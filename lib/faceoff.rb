@@ -1,3 +1,6 @@
+# Odd hack that makes the vpim-mechanize conflict disappear.
+Vpim = Module.new
+
 # Hack to fix old ruby version support of Vpim
 class Array
   def to_str
@@ -10,7 +13,6 @@ require 'rubygems'
 require 'mechanize'
 require 'highline'
 
-Vpim = Module.new # Odd hack that makes the vpim-mechanize conflict disappear.
 require 'vpim/vcard'
 
 require 'optparse'
@@ -42,8 +44,9 @@ class Faceoff
   # Create a new Faceoff instance and login.
 
   def self.login email, password
-    inst = new email, password
-    inst if inst.login
+    inst = self.new email, password
+    inst.login
+    inst if inst.logged_in?
   end
 
 
@@ -114,6 +117,8 @@ your content in a reusable format.
 
     opts.parse! argv
 
+    options['dir'] ||= "."
+
     options['email'], options['password'] = argv
 
     options
@@ -154,7 +159,16 @@ your content in a reusable format.
       options['password'] = nil unless faceoff
     end
 
-    
+    ACTIONS.each do |action|
+      next unless options[action]
+      dir = File.join options['dir'], action.capitalize.gsub("_", " ")
+
+      faceoff.send(action, options[action]) do |item|
+        name = item.name rescue item.fid
+        puts "Saving #{action} '#{name}'"
+        item.save! dir
+      end
+    end
   end
 
 
@@ -258,7 +272,9 @@ your content in a reusable format.
   # Check if we're logged into facebook.
 
   def logged_in?
-    !@agent.cookie_jar.cookies(URI.parse("http://www.facebook.com")).empty?
+    url = URI.parse("http://www.facebook.com")
+    #puts @agent.cookie_jar.cookies(url).inspect
+    @agent.cookie_jar.cookies(url).select{|c| c.name == "c_user" }.first
   end
 
 

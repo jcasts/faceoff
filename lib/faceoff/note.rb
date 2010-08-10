@@ -61,7 +61,7 @@ class Faceoff
     attr_accessor :fid
 
     # Note title.
-    attr_accessor :title
+    attr_accessor :title, :name
 
     # Note contents.
     attr_accessor :body
@@ -72,7 +72,7 @@ class Faceoff
 
     def initialize id, title, body, date=nil
       @fid   = id
-      @title = title
+      @title = @name = title
       @body  = body
       @date  = date || Time.now
     end
