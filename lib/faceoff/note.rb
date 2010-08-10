@@ -7,7 +7,7 @@ class Faceoff
     ##
     # Returns an array of notes.
 
-    def self.retrieve_all faceoff, options={}
+    def self.retrieve_all faceoff, options={}, &block
       agent = faceoff.agent
       limit = options[:limit]
       start = options[:start] || 0
@@ -19,7 +19,7 @@ class Faceoff
       page  = agent.current_page
 
       while !limit || notes.length < limit && page.link_with(:text => "Next") do
-        notes = notes.concat notes_at_index(faceoff, index)
+        notes = notes.concat notes_at_index(faceoff, index, &block)
         page  = agent.current_page
         index = start + notes.length
 
@@ -36,7 +36,7 @@ class Faceoff
     ##
     # Get notes on one page starting at a note index.
 
-    def self.notes_at_index faceoff, index
+    def self.notes_at_index faceoff, index, &block
       agent = faceoff.agent
       page  = agent.get "/notes.php?id=#{faceoff.profile_id}&start=#{index}"
 
@@ -50,6 +50,7 @@ class Faceoff
         body  = div.search("div[@class='#{CONTENT_CLASSES}']/div").first.text
 
         notes << new(id, title, body, date)
+        yield notes.last if block_given?
       end
 
       notes

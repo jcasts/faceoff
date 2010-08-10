@@ -7,7 +7,7 @@ class Faceoff
     # Returns an array of albums for the current user. Pass the :user_id option
     # to override the logged in user.
 
-    def self.retrieve_all faceoff, options={}
+    def self.retrieve_all faceoff, options={}, &block
       albums = []
       limit  = options[:limit]
       start  = options[:start] || 0
@@ -20,15 +20,20 @@ class Faceoff
       xpath = "table[@class='uiGrid fbPhotosGrid']/tbody/"+
               "/div[@class='pls photoDetails']/a"
 
-      page.search(xpath).each do |node|
+      nodes = page.search(xpath)
+
+      limit ||= nodes.length
+
+      nodes[start, limit].each do |node|
         album_id   = $1 if node['href'] =~ /aid=(\d+)/
         album_name = node.text
+
         albums << new(faceoff, album_id, album_name)
+
+        yield albums.last if block_given?
       end
 
-      limit ||= albums.length
-
-      albums[start, limit]
+      albums
     end
 
 
@@ -52,13 +57,16 @@ class Faceoff
     ##
     # Returns an array of photos.
 
-    def photos reload=false
-      return @photos if @photos && !reload
+    def photos reload=false, &block
+      if @photos && !reload
+        @photos.each &block if block_given?
+        return @photos
+      end
 
       options = {}
       options[:limit] = reload if Fixnum === reload
 
-      @photos = Photo.photos_of_album @faceoff, @fid, options
+      @photos = Photo.photos_of_album @faceoff, @fid, options, &block
     end
 
 
@@ -69,7 +77,7 @@ class Faceoff
       dirname = File.join target, @name
       FileUtils.mkdir_p dirname
 
-      self.photos.each{|p| p.save! dirname}
+      self.photos{|p| p.save! dirname}
     end
   end
 end

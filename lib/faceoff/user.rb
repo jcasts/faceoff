@@ -20,7 +20,11 @@ class Faceoff
       user_ids = JSON.parse $1 if page.body =~ %r{"members":(\[[^\]]+\])}
       limit ||= user_ids.length
 
-      user_ids[start, limit].map{|uid| retrieve faceoff, uid}
+      user_ids[start, limit].map do |uid|
+        user = retrieve faceoff, uid
+        yield user if block_given?
+        user
+      end
     end
 
 

@@ -273,9 +273,9 @@ your content in a reusable format.
   ##
   # Returns an array of photo albums.
 
-  def albums reload=false
+  def albums reload=false, &block
     return @albums if @albums && !reload
-    @albums = Album.retrieve_all self, bracket_for(reload)
+    @albums = Album.retrieve_all self, bracket_for(reload), &block
   end
 
 
@@ -291,36 +291,53 @@ your content in a reusable format.
   ##
   # Returns an array of friends.
 
-  def friends reload=false
-    return @friends if @friends && !reload
-    @friends = User.retrieve_all self, bracket_for(reload)
+  def friends reload=false, &block
+    if @friends && !reload
+      @friends.each &block if block_given?
+      return @friends
+    end
+
+    @friends = User.retrieve_all self, bracket_for(reload), &block
   end
 
 
   ##
   # Returns an array of notes.
 
-  def notes reload=false
-    return @notes if @notes && !reload
-    @notes = Note.retrieve_all self, bracket_for(reload)
+  def notes reload=false, &block
+    if @notes && !reload
+      @notes.each &block if block_given?
+      return @notes
+    end
+
+    @notes = Note.retrieve_all self, bracket_for(reload), &block
   end
 
 
   ##
   # Returns an array of photos of me.
 
-  def photos_of_me reload=false
-    return @photos_of_me if @photos_of_me && !reload
-    @photos_of_me = Photo.photos_of_me self, bracket_for(reload)
+  def photos_of_me reload=false, &block
+    if @photos_of_me && !reload
+      @photos_of_me.each &block if block_given?
+      return @photos_of_me
+    end
+
+    @photos_of_me = Photo.photos_of_me self, bracket_for(reload), &block
   end
 
 
   ##
   # Returns an array of profile pictures photos.
 
-  def profile_pictures reload=false
-    return @profile_pics if @profile_pics && !reload
-    @profile_pics = Photo.photos_of_album self, :profile, bracket_for(reload)
+  def profile_pictures reload=false, &block
+    if @profile_pics && !reload
+      @profile_pics.each &block if block_given?
+      return @profile_pics
+    end
+
+    @profile_pics =
+      Photo.photos_of_album self, :profile, bracket_for(reload), &block
   end
 
 
@@ -336,8 +353,12 @@ your content in a reusable format.
   ##
   # Returns an array of videos of me.
 
-  def videos_of_me reload=false
-    return @videos_of_me if @videos_of_me && !reload
-    @videos_of_me = Video.videos_of_me self, bracket_for(reload)
+  def videos_of_me reload=false, &block
+    if @videos_of_me && !reload
+      @videos_of_me.each &block if block_given?
+      return @videos_of_me
+    end
+
+    @videos_of_me = Video.videos_of_me self, bracket_for(reload), &block
   end
 end

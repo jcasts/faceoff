@@ -6,7 +6,7 @@ class Faceoff
     ##
     # Retrieve all 'Photos of Me'.
 
-    def self.photos_of_me faceoff, options={}
+    def self.photos_of_me faceoff, options={}, &block
       agent = faceoff.agent
       start = options[:start] || 0
 
@@ -21,7 +21,10 @@ class Faceoff
 
       return unless photo_id
 
-      retrieve_all faceoff, photo_id, options
+      retrieve_all faceoff,
+                   photo_id,
+                   options.merge(:album => "Photos of me"),
+                   &block
     end
 
 
@@ -29,9 +32,11 @@ class Faceoff
     # Retrieve all photos for a given album id. To retrieve the profile
     # album pass :profile as the album_id.
 
-    def self.photos_of_album faceoff, album_id, options={}
+    def self.photos_of_album faceoff, album_id, options={}, &block
       agent = faceoff.agent
       start = options[:start] || 0
+
+      options[:album] = "Profile pictures" if album_id == :profile
 
       param = album_id == :profile ? "profile=1" : "aid=#{album_id}"
       param = "#{param}&id=#{faceoff.profile_id}&s=#{start}"
@@ -42,7 +47,7 @@ class Faceoff
 
       return unless photo_id
 
-      retrieve_all faceoff, photo_id, options
+      retrieve_all faceoff, photo_id, options, &block
     end
 
 
@@ -51,7 +56,7 @@ class Faceoff
     # Setting the 'global' argument to true will attempt to retrieve all
     # 'Photos of Me'.
 
-    def self.retrieve_all faceoff, photo_id, options={}
+    def self.retrieve_all faceoff, photo_id, options={}, &block
       agent  = faceoff.agent
       user_id = options[:user_id]
       limit  = options[:limit]
@@ -73,7 +78,11 @@ class Faceoff
         caption =
           page.search("div[@class='photocaption_text']").first.text rescue nil
 
-        photos << new(photo_id, url, caption)
+        photos << new(photo_id, url, :caption => caption,
+                                     :album => options[:album])
+
+        yield photos.last if block_given?
+
         page = page.link_with(:text => 'Next').click
       end
 
@@ -90,18 +99,23 @@ class Faceoff
     # Caption of the photo.
     attr_accessor :caption
 
+    # Album name (context) of the photo.
+    attr_accessor :album
 
-    def initialize id, url, caption=nil
+
+    def initialize id, url, options={}
       @fid     = id
       @url     = url
-      @caption = caption
+      @caption = options[:caption]
+      @album   = options[:album] || "Photos"
     end
 
 
     ##
     # Saves the photo to the provided file path.
 
-    def save! target="./Photos"
+    def save! target=nil
+      target ||= File.join ".", @album
       filename = File.join(target, "#{@fid}#{File.extname(@url)}")
 
       data = Faceoff.download(@url)

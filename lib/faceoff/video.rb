@@ -9,7 +9,7 @@ class Faceoff
     ##
     # Retrieve all 'Videos of Me'.
 
-    def self.retrieve_all faceoff, options={}
+    def self.retrieve_all faceoff, options={}, &block
       agent = faceoff.agent
       limit = options[:limit]
       start = options[:start] || 0
@@ -29,6 +29,7 @@ class Faceoff
         video_id    = URI.decode($1) if page.body =~ ID_REG
 
         videos << new(video_id, video_src, video_title)
+        yield videos.last if block_given?
 
         next_link = page.link_with(:text => 'Next')
         break unless next_link
@@ -43,8 +44,8 @@ class Faceoff
     ##
     # Alias for Video::retrieve_all
 
-    def self.videos_of_me faceoff, options={}
-      retrieve_all faceoff, options
+    def self.videos_of_me faceoff, options={}, &block
+      retrieve_all faceoff, options, &block
     end
 
 
