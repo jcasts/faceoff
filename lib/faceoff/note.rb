@@ -75,5 +75,25 @@ class Faceoff
       @body  = body
       @date  = date || Time.now
     end
+
+
+    ##
+    # Saves the note to the provided file path.
+
+    def save! target="./Notes"
+      filename = File.join(target, "#{@title}.txt")
+
+      Faceoff.safe_save(filename) do |file|
+        file.write self.to_s
+      end
+    end
+
+
+    ##
+    # Returns the object as a string with title, date, and body.
+
+    def to_s
+      "#{@title}\n#{@date.to_s}\n\n#{@body}"
+    end
   end
 end
