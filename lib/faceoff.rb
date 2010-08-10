@@ -145,6 +145,20 @@ your content in a reusable format.
 
 
   ##
+  # Download a photo from a url. Pass a block to catch the data.
+
+  def self.download url
+    uri = URI.parse url
+
+    resp = Net::HTTP.start(uri.host) do |http|
+      http.get uri.path
+    end
+
+    resp.body
+  end
+
+
+  ##
   # Safely save a file; rename it if name exists.
 
   def self.safe_save filename, &block

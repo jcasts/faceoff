@@ -60,5 +60,16 @@ class Faceoff
 
       @photos = Photo.photos_of_album @faceoff, @fid, options
     end
+
+
+    ##
+    # Save the album to the provided directory.
+
+    def save! target="."
+      dirname = File.join target, @name
+      FileUtils.mkdir_p dirname
+
+      self.photos.each{|p| p.save! dirname}
+    end
   end
 end

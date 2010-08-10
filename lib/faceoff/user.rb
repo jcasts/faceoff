@@ -200,7 +200,7 @@ class Faceoff
         end
 
         maker.add_photo do |photo|
-          photo.image = Photo.download @photo
+          photo.image = Faceoff.download @photo
           photo.type  = File.extname(@photo)[1..-1]
         end if @photo
       end
