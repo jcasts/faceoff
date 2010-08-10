@@ -142,6 +142,29 @@ your content in a reusable format.
   end
 
 
+  ##
+  # Safely save a file; rename it if name exists.
+
+  def self.safe_save filename, &block
+    test_filename = filename
+
+    i = 0
+    while File.file?(test_filename)
+      i = i.next
+      ext = File.extname filename
+
+      test_filename = File.join File.dirname(filename),
+                                "#{File.basename(filename, ext)} (#{i})#{ext}"
+    end
+
+    filename = test_filename
+
+    File.open(filename, "w+") do |f|
+      block.call(f) if block_given?
+    end
+  end
+
+
   # Mechanize agent
   attr_accessor :agent
 

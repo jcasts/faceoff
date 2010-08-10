@@ -52,7 +52,10 @@ class Faceoff
 
       details = pagelets[:tab_content]
 
-      user.emails = fattr(details, 'Email')
+      birthday = fattr(details, 'Birthday')[0].strip
+      user.birthday = Time.parse birthday if birthday && !birthday.empty?
+
+      user.emails = fattr details, 'Email'
 
       user.phones['mobile'] =
         fattr(details, 'Mobile Number').first.gsub(/[^\da-z]/i, '') rescue nil
@@ -121,6 +124,9 @@ class Faceoff
     # User's name.
     attr_accessor :name
 
+    # User's birthday.
+    attr_accessor :birthday
+
     # Facebook profile image.
     attr_accessor :photo
 
@@ -158,18 +164,8 @@ class Faceoff
 
       vcard = to_vcard vcard
 
-      test_filename = filename = File.join(target, "#{@name}.vcf")
-
-      i = 0
-      while File.file?(test_filename)
-        i = i.next
-        test_filename = "#{File.basename(filename, ".vcf")} (#{i}).vcf"
-      end
-
-      filename = test_filename
-
-      File.open(filename, "w+") do |f|
-        f.write vcard
+      Faceoff.safe_save(File.join(target, "#{@name}.vcf")) do |file|
+        file.write vcard
       end
     end
 
@@ -183,6 +179,9 @@ class Faceoff
       vcard.make do |maker|
 
         maker.name{|n| n.fullname = @name }
+
+        maker.add_field Vpim::DirectoryInfo::Field.create('BDAY',
+          @birthday.strftime("%Y-%m-%d"))
 
         maker.add_addr do |addr|
           addr.region   = address[:state]
