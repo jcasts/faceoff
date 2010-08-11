@@ -110,8 +110,8 @@ your content in a reusable format.
         options['dir'] = path
       end
 
-      opt.on('-z', '--gzip [NAME]', 'Zip content when done') do |name|
-        options['gzip'] = name || true
+      opt.on('-z', '--zip [NAME]', 'Zip content when done') do |name|
+        options['zip'] = name || true
       end
     end
 
@@ -168,6 +168,13 @@ your content in a reusable format.
         puts "Saving #{action} '#{name}'"
         item.save! dir
       end
+    end
+
+    if options['zip']
+      zipfile = String === options['zip'] ? options['zip'] : directory
+      success = system "zip -u #{zipfile}.zip #{directory}/**/*"
+
+      FileUtils.rm_rf directory if success
     end
   end
 
