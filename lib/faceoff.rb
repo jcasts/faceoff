@@ -31,7 +31,7 @@ class Faceoff
 
 
   # Version of the gem.
-  VERSION = '1.0.0'
+  VERSION = '1.0.1'
 
   # Command line actions available.
   ACTIONS = %w{albums friends notes photos_of_me profile_pictures videos_of_me}
@@ -110,14 +110,12 @@ your content in a reusable format.
         options['dir'] = path
       end
 
-      opt.on('-z', '--gzip [NAME]', 'Zip content when done') do |name|
-        options['gzip'] = name || true
+      opt.on('-z', '--zip [NAME]', 'Zip content when done') do |name|
+        options['zip'] = name || true
       end
     end
 
     opts.parse! argv
-
-    options['dir'] ||= "."
 
     options['email'], options['password'] = argv
 
@@ -159,15 +157,24 @@ your content in a reusable format.
       options['password'] = nil unless faceoff
     end
 
+    directory = options['dir'] || "./#{email}"
+
     ACTIONS.each do |action|
       next unless options[action]
-      dir = File.join options['dir'], action.capitalize.gsub("_", " ")
+      dir = File.join directory, action.capitalize.gsub("_", " ")
 
       faceoff.send(action, options[action]) do |item|
         name = item.name rescue item.fid
         puts "Saving #{action} '#{name}'"
         item.save! dir
       end
+    end
+
+    if options['zip']
+      zipfile = String === options['zip'] ? options['zip'] : directory
+      success = system "zip -u #{zipfile}.zip #{directory}/**/*"
+
+      FileUtils.rm_rf directory if success
     end
   end
 
