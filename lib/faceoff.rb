@@ -36,9 +36,6 @@ class Faceoff
   # Command line actions available.
   ACTIONS = %w{albums friends notes photos_of_me profile_pictures videos_of_me}
 
-  # Default directory to save data to.
-  DEFAULT_DIR = "faceoff-#{Time.now.to_i}"
-
 
   ##
   # Create a new Faceoff instance and login.
