@@ -54,42 +54,43 @@ class Faceoff
 
       user = User.new id, name
 
-      details = pagelets[:tab_content]
-
-      birthday = fattr(details, 'Birthday')[0].strip
+      birthday = fattr(pagelets[:basic], 'Birthday')[0].strip
       user.birthday = Time.parse birthday if birthday && !birthday.empty?
 
-      user.emails = fattr details, 'Email'
+      user.emails = fattr pagelets[:contact], 'Email'
 
-      user.phones['mobile'] =
-        fattr(details, 'Mobile Number').first.gsub(/[^\da-z]/i, '') rescue nil
+      mobile = fattr(pagelets[:contact], 'Mobile Phone').first
+      user.phones['mobile'] = mobile.gsub(/[^\da-z]/i, '') rescue nil
 
-      user.phones['main'] =
-        fattr(details, 'Phone').first.gsub(/[^\da-z]/i, '') rescue nil
+      main_phone = fattr(pagelets[:contact], 'Phone').first
+      user.phones['main'] = main_phone.gsub(/[^\da-z]/i, '') rescue nil
 
 
       user.photo = pagelets[:profile_photo].css("img#profile_pic").first['src']
 
       user.address = {}
-      user.address[:street] = fattr(details, "Address", :href => /&a2=/).first
+      user.address[:street] =
+        fattr(pagelets[:contact], "Address", :href => /&a2=/).first
 
       user.address[:city], user.address[:state] =
-        fattr(details, "Address", :href => /&c2=/).first.to_s.split(", ")
+        fattr(pagelets[:contact], "Address", :href => /&c2=/).first.
+          to_s.split(", ")
 
       user.address[:state], user.address[:country] =
         [nil, user.address[:state]] if user.address[:state].to_s.length > 2
 
-      user.address[:zip] = fattr(details, "Address", :href => /&z2=/).first
+      user.address[:zip] =
+        fattr(pagelets[:contact], "Address", :href => /&z2=/).first
 
 
       IM_SERVICES.each do |im|
-        im_alias = fattr(details, im).first
+        im_alias = fattr(pagelets[:contact], im).first
         next unless im_alias
         user.aliases[im] = im_alias
       end
 
       user.aliases['Facebook'] = $1 if
-        fattr(details, 'Facebook Profile').first =~ /([^\/]+)$/
+        fattr(pagelets[:contact], 'Facebook Profile').first =~ /([^\/]+)$/
 
       user
     end
