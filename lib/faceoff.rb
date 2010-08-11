@@ -117,8 +117,6 @@ your content in a reusable format.
 
     opts.parse! argv
 
-    options['dir'] ||= "."
-
     options['email'], options['password'] = argv
 
     options
@@ -159,9 +157,11 @@ your content in a reusable format.
       options['password'] = nil unless faceoff
     end
 
+    directory = options['dir'] || "./#{email}"
+
     ACTIONS.each do |action|
       next unless options[action]
-      dir = File.join options['dir'], action.capitalize.gsub("_", " ")
+      dir = File.join directory, action.capitalize.gsub("_", " ")
 
       faceoff.send(action, options[action]) do |item|
         name = item.name rescue item.fid
