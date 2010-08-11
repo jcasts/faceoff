@@ -31,7 +31,7 @@ class Faceoff
 
 
   # Version of the gem.
-  VERSION = '1.0.1'
+  VERSION = '1.0.2'
 
   # Command line actions available.
   ACTIONS = %w{albums friends notes photos_of_me profile_pictures videos_of_me}
