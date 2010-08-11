@@ -38,7 +38,7 @@ class Faceoff
 
     def self.regex_for name
       name ||= "\\w+"
-      %r{<script>.*"pagelet_(#{name})":"(.*)"\},"page_cache":.*\}\);</script>}
+      %r{<script>.*"pagelet_(#{name})":"(.*?)"\},"page_cache":.*\}\);</script>}
     end
   end
 end

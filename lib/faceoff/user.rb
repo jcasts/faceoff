@@ -43,7 +43,6 @@ class Faceoff
              end
 
       page = agent.get path
-
       pagelets = Pagelet.parse page.body
 
       name = pagelets[:top_bar].css("h1#profile_name").first.text
@@ -51,11 +50,23 @@ class Faceoff
         pagelets[:top_bar].css("a#top_bar_pic").first['href'] =~
         %r{/profile\.php\?id=(\d+)}
 
-
       user = User.new id, name
+      user = self.add_contact_info user, pagelets
 
       birthday = fattr(pagelets[:basic], 'Birthday')[0].strip rescue nil
       user.birthday = Time.parse birthday if birthday && !birthday.empty?
+
+      user.photo = pagelets[:profile_photo].css("img#profile_pic").first['src']
+
+      user
+    end
+
+
+    ##
+    # Get pagelet contact info.
+
+    def self.add_contact_info user, pagelets
+      return unless pagelets[:contact]
 
       user.emails = fattr pagelets[:contact], 'Email'
 
@@ -64,9 +75,6 @@ class Faceoff
 
       main_phone = fattr(pagelets[:contact], 'Phone').first
       user.phones['main'] = main_phone.gsub(/[^\da-z]/i, '') rescue nil
-
-
-      user.photo = pagelets[:profile_photo].css("img#profile_pic").first['src']
 
       user.address = {}
       user.address[:street] =
