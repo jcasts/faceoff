@@ -54,7 +54,7 @@ class Faceoff
 
       user = User.new id, name
 
-      birthday = fattr(pagelets[:basic], 'Birthday')[0].strip
+      birthday = fattr(pagelets[:basic], 'Birthday')[0].strip rescue nil
       user.birthday = Time.parse birthday if birthday && !birthday.empty?
 
       user.emails = fattr pagelets[:contact], 'Email'
@@ -183,7 +183,7 @@ class Faceoff
         maker.name{|n| n.fullname = @name }
 
         maker.add_field Vpim::DirectoryInfo::Field.create('BDAY',
-          @birthday.strftime("%Y-%m-%d"))
+          @birthday.strftime("%Y-%m-%d")) if @birthday
 
         maker.add_addr do |addr|
           addr.region   = address[:state]
