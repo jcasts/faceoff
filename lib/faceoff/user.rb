@@ -66,7 +66,7 @@ class Faceoff
     # Get pagelet contact info.
 
     def self.add_contact_info user, pagelets
-      return unless pagelets[:contact]
+      return user unless pagelets[:contact]
 
       user.emails = fattr pagelets[:contact], 'Email'
 
